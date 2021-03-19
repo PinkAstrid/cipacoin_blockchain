@@ -23,6 +23,10 @@ contract CipaCoins{
 
   Club[] public clubs;
 
+  constructor(){
+		directionDesEtudes = msg.sender;
+	}
+
   function sendCipaStudentToStudent(address student, uint amount) public {
     require(
       eleves[msg.sender].cipaStudentBalance>amount,
@@ -82,6 +86,51 @@ contract CipaCoins{
       msg.sender== directionDesEtudes,
       "Seule la direction des etudes peut creer des clubs"
     );
+
+    bool alreadyExists = false;
+    for(uint i = 0; i < clubs.length; i++ ){
+      alreadyExists = (clubs[i].name != name);
+    }
+
+    require(
+      !alreadyExists,
+      "Le club existe deja."
+    );
+
+    Club storage nveauClub;
+    nveauClub.name = name;
+    nveauClub.pres = president;
+    nveauClub.cipaClubBalance = 0;
+
+    clubs.push(nveauClub);
   }
 
+  function validateCipa() public{
+    require(
+      !eleves[msg.sender].certificat,
+      "L'etudiant a deja valide son certificat CIPA"
+    );
+
+    require(
+      eleves[msg.sender].cipaStudentBalance >= cipaThreashHold,
+      "L'etudiant n'a pas assez de point CIPA."
+    );
+
+    eleves[msg.sender].certificat = true;
+    eleves[msg.sender].cipaStudentBalance = 0;
+  }
+
+  function makePres(address newPres, uint clubInt) public{
+    require(
+      msg.sender== directionDesEtudes,
+      "Seule la direction des etudes peut nommer un president."
+    );
+
+    require(
+      clubInt<clubs.length,
+       "Le club n'est pas connu."
+    ); 
+    
+    clubs[clubInt].pres = newPres;
+  }
 }
