@@ -24,6 +24,7 @@ contract CipaCoins {
 
     constructor() public {
         directionDesEtudes = msg.sender;
+        cipaThreshold = 20;
     }
 
     function setCipaThreshold(uint256 threshold) public {
