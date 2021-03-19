@@ -6,6 +6,8 @@ const truffleAssert = require('truffle-assertions');
 // par contre tout ce qui est dans la blockchain y reste
 // faut faire gaffe à pas redéclarer des trucs par erreur du coup
 
+// on va essayer de documenter l'evolution de la blockchain au-dessus des fonctions qui la modifie du coup
+
 // pense a faire un "npm install truffle-assertions", ça permet de tester proprement un echec
 
 contract("El Cipatest", async accounts => {
