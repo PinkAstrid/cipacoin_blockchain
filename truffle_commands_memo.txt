@@ -1,0 +1,10 @@
+let instance = await CipaCoins.at("<l'adresse de ton contrat dans ganache>")
+let accounts = await web3.eth.getAccounts()
+let collin = accounts[0]
+let mac = accounts[1]
+let ambroise = accounts[2]
+let amadis = accounts[3]
+instance.registerStudent(mac)
+instance.registerStudent(amadis)
+instance.registerStudent(ambroise)
+instance.createClub(amadis, web3.utils.fromAscii("club multiprises"))
