@@ -16,7 +16,7 @@ contract CipaCoins {
 
     address public directionDesEtudes;
 
-    uint256 cipaThreashHold;
+    uint256 cipaThreshold;
 
     mapping(address => Eleve) public eleves;
 
@@ -101,7 +101,7 @@ contract CipaCoins {
         );
 
         require(
-            eleves[msg.sender].cipaStudentBalance >= cipaThreashHold,
+            eleves[msg.sender].cipaStudentBalance >= cipaThreshold,
             "L'etudiant n'a pas assez de point CIPA."
         );
 
