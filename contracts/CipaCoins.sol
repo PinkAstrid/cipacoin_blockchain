@@ -147,7 +147,7 @@ contract CipaCoins {
 
         bool alreadyExists = false;
         for (uint256 i = 0; i < clubs.length; i++) {
-            alreadyExists = (clubs[i].name != name);
+            alreadyExists = alreadyExists || (clubs[i].name == name);
         }
 
         require(!alreadyExists, "Le club existe deja.");
@@ -184,11 +184,6 @@ contract CipaCoins {
         require(
             eleves[newPres].exists,
             "Le president doit etre un etudiant inscrit."
-        );
-
-        require(
-            newPres != directionDesEtudes,
-            "La direction des etudes ne peut pas etre a la tete d'un club"
         );
 
         require(clubInt < clubs.length, "Le club n'est pas connu.");
