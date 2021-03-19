@@ -61,6 +61,13 @@ contract CipaCoin {
         return clubs[clubInt].cipaClubBalance;
     }
 
+    function getClubIntFromName(bytes32 name) public view returns (uint256) {
+        for (uint256 i = 0; i < clubs.length; i++) {
+            if (clubs[i].name == name) return i;
+        }
+        revert("Aucun club avec ce nom");
+    }
+
     function getCipathreshold() public view returns (uint256) {
         return cipaThreshold;
     }
@@ -184,7 +191,8 @@ contract CipaCoin {
 
         bool alreadyExists = false;
         for (uint256 i = 0; i < clubs.length; i++) {
-            alreadyExists = alreadyExists || (clubs[i].name == name);
+            alreadyExists = clubs[i].name == name;
+            if (alreadyExists) break;
         }
 
         require(!alreadyExists, "Le club existe deja.");
