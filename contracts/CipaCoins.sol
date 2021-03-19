@@ -26,6 +26,15 @@ contract CipaCoins {
         directionDesEtudes = msg.sender;
     }
 
+    function setCipaThreshold(uint256 threshold) public {
+        require(
+            msg.sender == directionDesEtudes,
+            "Seule la direction des etudes peut modifier le seuil de validation"
+        );
+
+        cipaThreshold = threshold;
+    }
+
     function sendCipaStudentToStudent(address student, uint256 amount) public {
         require(
             eleves[msg.sender].cipaStudentBalance > amount,
