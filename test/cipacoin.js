@@ -1,5 +1,4 @@
 const CipaCoin = artifacts.require("CipaCoin");
-
 const truffleAssert = require('truffle-assertions');
 
 
@@ -11,11 +10,11 @@ const truffleAssert = require('truffle-assertions');
 
 contract("El Cipatest", async accounts => {
 
-    let alaska = accounts[0];
-    let mac = accounts[1];
-    let ambroise = accounts[2];
-    let amadis = accounts[3];
-    let un_pote = accounts[4]; // un type grave sympa mais qui n'est pas eleve à TN
+  let alaska = accounts[0]; // la direction des études
+  let mac = accounts[1];
+  let ambroise = accounts[2];
+  let amadis = accounts[3]; // le type avec les multiprises
+  let un_pote = accounts[4]; // un type grave sympa mais qui n'est pas eleve à TN
 
   it("le threshold par défaut devrait etre 20", async () => {
     let instance = await CipaCoin.deployed();
@@ -23,7 +22,9 @@ contract("El Cipatest", async accounts => {
     assert.equal(balance.valueOf(), 20);
   });
 
-  it("on peut inscrire des etudiants", async()=>{
+  // mac ajouté
+  // ambroise ajouté
+  it("on peut inscrire des etudiants", async () => {
     let instance = await CipaCoin.deployed();
 
     instance.registerStudent(mac);
@@ -35,45 +36,143 @@ contract("El Cipatest", async accounts => {
     assert.equal(ambroiseExists, true);
   });
 
-  it("on ne peut pas inscrire la direction des etudes", async()=>{
+  it("on ne peut pas inscrire la direction des etudes", async () => {
     let instance = await CipaCoin.deployed();
 
     await truffleAssert.reverts(instance.registerStudent(alaska));
   });
 
-  it("on peut creer un club", async()=>{
+  // amadis ajouté
+  // club multiprises (0) créé
+  it("on peut creer un club", async () => {
     let instance = await CipaCoin.deployed();
 
     instance.registerStudent(amadis);
     instance.createClub(amadis, web3.utils.fromAscii("club multiprises"));
 
-    let clubInt = await instance.getClubIntFromName.call( web3.utils.fromAscii("club multiprises"));
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club multiprises"));
     let clubExists = await instance.clubExists.call(clubInt);
 
     assert.equal(clubExists, true);
   });
 
-  it("on ne peut pas creer deux clubs identiques", async()=>{
+  it("on ne peut pas creer deux clubs identiques", async () => {
     let instance = await CipaCoin.deployed();
 
     await truffleAssert.reverts(instance.createClub(amadis, web3.utils.fromAscii("club multiprises")));
   });
 
-  it("la direction des etudes ne peut pas creer de club, un eleve si", async()=>{
+  // club conso (1) créé
+  it("la direction des etudes ne peut pas creer de club, un eleve si", async () => {
     let instance = await CipaCoin.deployed();
 
     await truffleAssert.reverts(instance.createClub(alaska, web3.utils.fromAscii("club conso")));
-    
+
     instance.createClub(mac, web3.utils.fromAscii("club conso"));
-    let clubInt = await instance.getClubIntFromName.call( web3.utils.fromAscii("club conso"));
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubExists = await instance.clubExists.call(clubInt);
     assert.equal(clubExists, true);
   });
 
-  it("seul un eleve inscrit peut creer un club", async()=>{
+  it("seul un eleve inscrit peut creer un club", async () => {
     let instance = await CipaCoin.deployed();
 
     await truffleAssert.reverts(instance.createClub(un_pote, web3.utils.fromAscii("club tourisme")));
+  });
+
+  // club conso +15 -> 15
+  it("la direction des etudes peut donner des points a un club", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    instance.sendCipaDirToClub(clubInt, 15);
+    let balance = await instance.getClubBalance(clubInt);
+
+    assert.equal(balance, 15);
+  });
+
+  it("un etudiant ne peut pas donner des points a un club", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    await truffleAssert.reverts(instance.sendCipaDirToClub(clubInt, 10, { from: ambroise }));
+    let balance = await instance.getClubBalance(clubInt);
+
+    assert.equal(balance, 15);
+  });
+
+  // club conso -5 -> 10
+  // ambroise +5 -> 5
+  it("un club peut donner des points a un eleve", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    let clubPres = await instance.getClubPres.call(clubInt);
+
+    instance.sendCipaClubToStudent(clubInt, ambroise, 5, { from: clubPres });
+
+    let clubBalance = await instance.getClubBalance(clubInt);
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+
+    assert.equal(clubBalance, 10);
+    assert.equal(ambroiseBalance, 5);
+  });
+
+  it("un club ne peut donner des points qu'a un eleve inscrit", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    let clubPres = await instance.getClubPres.call(clubInt);
+
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, un_pote, 10, { from: clubPres }));
+
+    let clubBalance = await instance.getClubBalance(clubInt);
+
+    assert.equal(clubBalance, 10);
+  });
+
+  it("un club ne peut pas donner des points a la direction des etudes", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    let clubPres = await instance.getClubPres.call(clubInt);
+
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, alaska, 10, { from: clubPres }));
+
+    let clubBalance = await instance.getClubBalance(clubInt);
+
+    assert.equal(clubBalance, 10);
+  });
+
+  it("un club ne peut donner plus de points qu'il n'en possede", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    let clubPres = await instance.getClubPres.call(clubInt);
+
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 20, { from: clubPres }));
+
+    let clubBalance = await instance.getClubBalance(clubInt);
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+
+    assert.equal(clubBalance, 10);
+    assert.equal(ambroiseBalance, 5);
+  });
+
+  it("seul le president d'un club peut donner les points de son club", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
+    let clubPres = await instance.getClubPres.call(clubInt);
+
+    assert.equal(amadis == clubPres, false);
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 5, { from: amadis }));
+
+    let clubBalance = await instance.getClubBalance(clubInt);
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+
+    assert.equal(clubBalance, 10);
+    assert.equal(ambroiseBalance, 5);
   });
 
 });
