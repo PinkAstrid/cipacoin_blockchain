@@ -92,7 +92,7 @@ contract CipaCoin {
             "La direction des etudes ne peut pas etre un etudiant"
         );
 
-        require(!eleves[student].exists, "L'eleve est deja inscrit");
+        require(!studentExists(student), "L'eleve est deja inscrit");
 
         eleves[student] = Eleve({
             eleve: student,
@@ -106,11 +106,11 @@ contract CipaCoin {
         require(amount > 0, "Le montant de la transaction est nul.");
 
         require(
-            eleves[msg.sender].exists,
+            studentExists(msg.sender),
             "L'etudiant doit etre inscrit pour pouvoir envoyer des CIPA."
         );
         require(
-            eleves[student].exists,
+            studentExists(student),
             "L'etudiant doit etre inscrit pour pouvoir recevoir des CIPA."
         );
 
@@ -120,7 +120,7 @@ contract CipaCoin {
         );
 
         require(
-            !eleves[student].certificat,
+            !studentHasCert(student),
             "L'eleve receveur a deja assez de CIPA."
         );
 
@@ -135,7 +135,7 @@ contract CipaCoin {
             "Seule la direction des etudes peut creer des CIPA."
         );
 
-        require(clubInt < clubs.length, "Le club n'est pas connu.");
+        require(clubExists(clubInt), "Le club n'est pas connu.");
 
         clubs[clubInt].cipaClubBalance += amount;
     }
@@ -147,15 +147,15 @@ contract CipaCoin {
     ) public {
         require(amount > 0, "Le montant de la transaction est nul.");
 
-        require(clubInt < clubs.length, "Le club n'est pas connu.");
+        require(clubExists(clubInt), "Le club n'est pas connu.");
 
         require(
-            eleves[student].exists,
+            studentExists(student),
             "L'etudiant doit etre inscrit pour pouvoir recevoir des CIPA."
         );
 
         require(
-            msg.sender == clubs[clubInt].pres,
+            msg.sender == getClubPres(clubInt),
             "L'envoyeur n'est pas president du club."
         );
 
@@ -165,7 +165,7 @@ contract CipaCoin {
         );
 
         require(
-            !eleves[student].certificat,
+            !studentHasCert(student),
             "L'eleve receveur a deja assez de CIPA."
         );
 
@@ -185,7 +185,7 @@ contract CipaCoin {
         );
 
         require(
-            eleves[president].exists,
+            studentExists(president),
             "Le president doit etre un etudiant inscrit."
         );
 
@@ -202,12 +202,12 @@ contract CipaCoin {
 
     function validateCipa() public {
         require(
-            eleves[msg.sender].exists,
+            studentExists(msg.sender),
             "L'etudiant doit etre inscrit pour pouvoir valider son certificat CIPA"
         );
 
         require(
-            !eleves[msg.sender].certificat,
+            !studentHasCert(msg.sender),
             "L'etudiant a deja valide son certificat CIPA"
         );
 
@@ -227,14 +227,14 @@ contract CipaCoin {
         );
 
         require(
-            eleves[newPres].exists,
+            studentExists(newPres),
             "Le president doit etre un etudiant inscrit."
         );
 
-        require(clubInt < clubs.length, "Le club n'est pas connu.");
+        require(clubExists(clubInt), "Le club n'est pas connu.");
 
         require(
-            clubs[clubInt].pres != newPres,
+            getClubPres(clubInt) != newPres,
             "L'etudiant est deja president de ce club."
         );
 
