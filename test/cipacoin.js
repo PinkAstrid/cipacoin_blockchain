@@ -177,4 +177,43 @@ contract("El Cipatest", async accounts => {
     assert.equal(ambroiseBalance, 5);
   });
 
+
+  // ambroise -2 -> 3
+  // mac +2 -> 2
+  it("un eleve peut envoyer des cipa a un autre eleve", async () => {
+    let instance = await CipaCoin.deployed();
+
+    instance.sendCipaStudentToStudent(mac, 2, { from: ambroise });
+
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    let macBalance = await instance.getStudentBalance(mac);
+
+    assert.equal(ambroiseBalance, 3);
+    assert.equal(macBalance, 2);
+  });
+
+  it("un eleve ne peut envoyer plus de cipa qu'il n'en possede", async () => {
+    let instance = await CipaCoin.deployed();
+
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(ambroise, 10, { from: mac }));
+
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    let macBalance = await instance.getStudentBalance(mac);
+
+    assert.equal(ambroiseBalance, 3);
+    assert.equal(macBalance, 2);
+  });
+
+  it("un eleve ne peut envoyer des cipa qu'a un autre eleve", async () => {
+    let instance = await CipaCoin.deployed();
+
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(un_pote, 1, { from: mac }));
+
+    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    let macBalance = await instance.getStudentBalance(mac);
+
+    assert.equal(ambroiseBalance, 3);
+    assert.equal(macBalance, 2);
+  });
+
 });
