@@ -118,6 +118,7 @@ contract CipaCoin {
             studentExists(msg.sender),
             "L'etudiant doit etre inscrit pour pouvoir envoyer des CIPA."
         );
+
         require(
             studentExists(student),
             "L'etudiant doit etre inscrit pour pouvoir recevoir des CIPA."

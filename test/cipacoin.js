@@ -133,12 +133,14 @@ contract("El Cipatest", async accounts => {
   it("un club ne peut donner des points qu'a un eleve inscrit", async () => {
     let instance = await CipaCoin.deployed();
 
+    let amount = 10;
+
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
     let clubInitialBalance = await instance.getClubBalance(clubInt);
 
-    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, un_pote, 10, { from: clubPres }));
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, un_pote, amount, { from: clubPres }));
 
     let clubFinalBalance = await instance.getClubBalance(clubInt);
 
@@ -166,13 +168,16 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
-    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 20, { from: clubPres }));
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
 
-    let clubBalance = await instance.getClubBalance(clubInt);
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, clubInitialBalance.addn(1), { from: clubPres }));
 
-    assert.isOk(clubBalance.eqn(10));
-    assert.isOk(ambroiseBalance.eqn(5));
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
+
+    assert.isOk(clubInitialBalance.eq(clubFinalBalance));
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
   });
 
   it("seul le president d'un club peut donner les points de son club", async () => {
@@ -181,14 +186,17 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
+
     assert.equal(amadis == clubPres, false);
     await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 5, { from: amadis }));
 
-    let clubBalance = await instance.getClubBalance(clubInt);
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
 
-    assert.isOk(clubBalance.eqn(10));
-    assert.isOk(ambroiseBalance.eqn(5));
+    assert.isOk(clubInitialBalance.eq(clubFinalBalance));
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
   });
 
 
