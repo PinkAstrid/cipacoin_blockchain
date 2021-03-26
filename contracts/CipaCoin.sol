@@ -28,6 +28,10 @@ contract CipaCoin {
         cipaThreshold = 20;
     }
 
+    function getDirectionDesEtudes() public view returns (address) {
+        return directionDesEtudes;
+    }
+
     function studentExists(address student) public view returns (bool) {
         return eleves[student].exists;
     }
@@ -104,6 +108,11 @@ contract CipaCoin {
 
     function sendCipaStudentToStudent(address student, uint256 amount) public {
         require(amount > 0, "Le montant de la transaction est nul.");
+
+        require(
+            msg.sender != student,
+            "Un etudiant ne peut s'envoyer des CIPA a lui-meme."
+        );
 
         require(
             studentExists(msg.sender),

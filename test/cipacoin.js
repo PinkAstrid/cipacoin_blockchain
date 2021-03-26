@@ -29,13 +29,13 @@ contract("El Cipatest", async accounts => {
   it("on peut inscrire des etudiants", async () => {
     let instance = await CipaCoin.deployed();
 
-    assert.isNotOk(await instance.studentExists.call(mac));
+    assert.isNotOk(await instance.studentExists.call(mac), "l'etudiant existe avant l'execution du test");
     instance.registerStudent(mac);
-    assert.isOk(await instance.studentExists.call(mac));
+    assert.isOk(await instance.studentExists.call(mac), "l'etudiant n'existe pas alors qu'il a bien ete cree");
 
-    assert.isNotOk(await instance.studentExists.call(ambroise));
+    assert.isNotOk(await instance.studentExists.call(ambroise), "l'etudiant existe avant l'execution du test");
     instance.registerStudent(ambroise);
-    assert.isOk(await instance.studentExists.call(ambroise));
+    assert.isOk(await instance.studentExists.call(ambroise), "l'etudiant n'existe pas alors qu'il a bien ete cree");
   });
 
   it("on ne peut pas inscrire la direction des etudes", async () => {
@@ -55,7 +55,7 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club multiprises"));
     let clubExists = await instance.clubExists.call(clubInt);
 
-    assert.isOk(clubExists);
+    assert.isOk(clubExists, "le club n'existe pas alors qu'il a bien ete cree");
   });
 
   it("on ne peut pas creer deux clubs identiques", async () => {
@@ -113,16 +113,21 @@ contract("El Cipatest", async accounts => {
   it("un club peut donner des points a un eleve", async () => {
     let instance = await CipaCoin.deployed();
 
+    let amount = 5
+
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
-    instance.sendCipaClubToStudent(clubInt, ambroise, 5, { from: clubPres });
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
 
-    let clubBalance = await instance.getClubBalance(clubInt);
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
+    instance.sendCipaClubToStudent(clubInt, ambroise, amount, { from: clubPres });
 
-    assert.equal(clubBalance, 10);
-    assert.equal(ambroiseBalance, 5);
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
+
+    assert.isOk(clubInitialBalance.subn(amount).eq(clubFinalBalance));
+    assert.isOk(ambroiseInitialBalance.addn(amount).eq(ambroiseFinalBalance));
   });
 
   it("un club ne peut donner des points qu'a un eleve inscrit", async () => {
@@ -131,11 +136,13 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
+
     await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, un_pote, 10, { from: clubPres }));
 
-    let clubBalance = await instance.getClubBalance(clubInt);
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
 
-    assert.equal(clubBalance, 10);
+    assert.isOk(clubInitialBalance.eq(clubFinalBalance), "le nombre de CIPA du club a change alors que la transaction est censee echouer");
   });
 
   it("un club ne peut pas donner des points a la direction des etudes", async () => {
@@ -144,11 +151,13 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubPres = await instance.getClubPres.call(clubInt);
 
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
+
     await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, alaska, 10, { from: clubPres }));
 
-    let clubBalance = await instance.getClubBalance(clubInt);
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
 
-    assert.equal(clubBalance, 10);
+    assert.isOk(clubInitialBalance.eq(clubFinalBalance), "le nombre de CIPA du club a change alors que la transaction est censee echouer");
   });
 
   it("un club ne peut donner plus de points qu'il n'en possede", async () => {
@@ -162,8 +171,8 @@ contract("El Cipatest", async accounts => {
     let clubBalance = await instance.getClubBalance(clubInt);
     let ambroiseBalance = await instance.getStudentBalance(ambroise);
 
-    assert.equal(clubBalance, 10);
-    assert.equal(ambroiseBalance, 5);
+    assert.isOk(clubBalance.eqn(10));
+    assert.isOk(ambroiseBalance.eqn(5));
   });
 
   it("seul le president d'un club peut donner les points de son club", async () => {
@@ -178,8 +187,8 @@ contract("El Cipatest", async accounts => {
     let clubBalance = await instance.getClubBalance(clubInt);
     let ambroiseBalance = await instance.getStudentBalance(ambroise);
 
-    assert.equal(clubBalance, 10);
-    assert.equal(ambroiseBalance, 5);
+    assert.isOk(clubBalance.eqn(10));
+    assert.isOk(ambroiseBalance.eqn(5));
   });
 
 
@@ -198,7 +207,7 @@ contract("El Cipatest", async accounts => {
     let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
     let macFinalBalance = await instance.getStudentBalance(mac);
 
-    assert.isOk(ambroiseInitialBalance.gten(amount));
+    assert.isOk(ambroiseInitialBalance.gten(amount, "l'etudiant n'a pas assez de CIPA pour effectuer le test"));
     assert.isOk(ambroiseInitialBalance.subn(amount).eq(ambroiseFinalBalance));
     assert.isOk(macInitialBalance.addn(amount).eq(macFinalBalance));
   });
@@ -206,20 +215,16 @@ contract("El Cipatest", async accounts => {
   it("un eleve ne peut envoyer plus de cipa qu'il n'en possede", async () => {
     let instance = await CipaCoin.deployed();
 
-    let amount = 10;
-
     let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
     let macInitialBalance = await instance.getStudentBalance(mac);
 
-    assert.isOk(macInitialBalance.ltn(amount));
-
-    await truffleAssert.reverts(instance.sendCipaStudentToStudent(ambroise, amount, { from: mac }));
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(ambroise, macInitialBalance.addn(1), { from: mac }));
 
     let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
     let macFinalBalance = await instance.getStudentBalance(mac);
 
-    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
-    assert.isOk(macInitialBalance.eq(macFinalBalance));
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance), "le nombre de CIPA de l'etudiant a change alors que la transaction est censee echouer");
+    assert.isOk(macInitialBalance.eq(macFinalBalance), "le nombre de CIPA du club a change alors que la transaction est censee echouer");
   });
 
   it("un eleve ne peut envoyer des cipa qu'a un autre eleve", async () => {
@@ -235,9 +240,9 @@ contract("El Cipatest", async accounts => {
     let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
     let macFinalBalance = await instance.getStudentBalance(mac);
 
-    assert.isOk(macInitialBalance.gten(amount));
-    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
-    assert.isOk(macInitialBalance.eq(macFinalBalance));
+    assert.isOk(macInitialBalance.gten(amount), "l'etudiant n'a pas de points CIPA, il doit en avoir pour effectuer ce test");
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance), "le nombre de CIPA de l'etudiant a change alors que la transaction est censee echouer");
+    assert.isOk(macInitialBalance.eq(macFinalBalance), "le nombre de CIPA de l'etudiant a change alors que la transaction est censee echouer");
   });
 
   it("un eleve ne peut pas s'envoyer des cipa a lui-meme", async () => {
@@ -249,8 +254,8 @@ contract("El Cipatest", async accounts => {
     await truffleAssert.reverts(instance.sendCipaStudentToStudent(mac, amount, { from: mac }));
     let macFinalBalance = await instance.getStudentBalance(mac);
 
-    assert.isOk(macInitialBalance.gten(amount));
-    assert.isOk(macInitialBalance.eq(macFinalBalance));
+    assert.isOk(macInitialBalance.gten(amount), "l'etudiant n'a pas de points CIPA, il doit en avoir pour effectuer ce test");
+    assert.isOk(macInitialBalance.eq(macFinalBalance), "le nombre de CIPA de l'etudiant a change alors que la transaction est censee echouer");
   });
 
 });
