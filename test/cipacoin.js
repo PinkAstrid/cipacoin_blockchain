@@ -21,7 +21,7 @@ contract("El Cipatest", async accounts => {
   it("le threshold par défaut devrait etre 20", async () => {
     let instance = await CipaCoin.deployed();
     let balance = await instance.getCipathreshold.call();
-    assert.equal(balance.valueOf(), 20);
+    assert.isOk(balance.eqn(20));
   });
 
   // mac ajouté
@@ -29,13 +29,13 @@ contract("El Cipatest", async accounts => {
   it("on peut inscrire des etudiants", async () => {
     let instance = await CipaCoin.deployed();
 
+    assert.isNotOk(await instance.studentExists.call(mac));
     instance.registerStudent(mac);
-    let macExists = await instance.studentExists.call(mac);
-    assert.equal(macExists, true);
+    assert.isOk(await instance.studentExists.call(mac));
 
+    assert.isNotOk(await instance.studentExists.call(ambroise));
     instance.registerStudent(ambroise);
-    let ambroiseExists = await instance.studentExists.call(ambroise);
-    assert.equal(ambroiseExists, true);
+    assert.isOk(await instance.studentExists.call(ambroise));
   });
 
   it("on ne peut pas inscrire la direction des etudes", async () => {
@@ -55,11 +55,16 @@ contract("El Cipatest", async accounts => {
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club multiprises"));
     let clubExists = await instance.clubExists.call(clubInt);
 
-    assert.equal(clubExists, true);
+    assert.isOk(clubExists);
   });
 
   it("on ne peut pas creer deux clubs identiques", async () => {
     let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club multiprises"));
+    let clubExists = await instance.clubExists.call(clubInt);
+
+    assert.isOk(clubExists);
 
     await truffleAssert.reverts(instance.createClub(amadis, web3.utils.fromAscii("club multiprises")));
   });
@@ -73,7 +78,7 @@ contract("El Cipatest", async accounts => {
     instance.createClub(mac, web3.utils.fromAscii("club conso"));
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club conso"));
     let clubExists = await instance.clubExists.call(clubInt);
-    assert.equal(clubExists, true);
+    assert.isOk(clubExists);
   });
 
   it("seul un eleve inscrit peut creer un club", async () => {
@@ -183,37 +188,69 @@ contract("El Cipatest", async accounts => {
   it("un eleve peut envoyer des cipa a un autre eleve", async () => {
     let instance = await CipaCoin.deployed();
 
-    instance.sendCipaStudentToStudent(mac, 2, { from: ambroise });
+    let amount = 2;
 
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
-    let macBalance = await instance.getStudentBalance(mac);
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let macInitialBalance = await instance.getStudentBalance(mac);
 
-    assert.equal(ambroiseBalance, 3);
-    assert.equal(macBalance, 2);
+    instance.sendCipaStudentToStudent(mac, amount, { from: ambroise });
+
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
+    let macFinalBalance = await instance.getStudentBalance(mac);
+
+    assert.isOk(ambroiseInitialBalance.gten(amount));
+    assert.isOk(ambroiseInitialBalance.subn(amount).eq(ambroiseFinalBalance));
+    assert.isOk(macInitialBalance.addn(amount).eq(macFinalBalance));
   });
 
   it("un eleve ne peut envoyer plus de cipa qu'il n'en possede", async () => {
     let instance = await CipaCoin.deployed();
 
-    await truffleAssert.reverts(instance.sendCipaStudentToStudent(ambroise, 10, { from: mac }));
+    let amount = 10;
 
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
-    let macBalance = await instance.getStudentBalance(mac);
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let macInitialBalance = await instance.getStudentBalance(mac);
 
-    assert.equal(ambroiseBalance, 3);
-    assert.equal(macBalance, 2);
+    assert.isOk(macInitialBalance.ltn(amount));
+
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(ambroise, amount, { from: mac }));
+
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
+    let macFinalBalance = await instance.getStudentBalance(mac);
+
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
+    assert.isOk(macInitialBalance.eq(macFinalBalance));
   });
 
   it("un eleve ne peut envoyer des cipa qu'a un autre eleve", async () => {
     let instance = await CipaCoin.deployed();
 
-    await truffleAssert.reverts(instance.sendCipaStudentToStudent(un_pote, 1, { from: mac }));
+    let amount = 1;
 
-    let ambroiseBalance = await instance.getStudentBalance(ambroise);
-    let macBalance = await instance.getStudentBalance(mac);
+    let ambroiseInitialBalance = await instance.getStudentBalance(ambroise);
+    let macInitialBalance = await instance.getStudentBalance(mac);
 
-    assert.equal(ambroiseBalance, 3);
-    assert.equal(macBalance, 2);
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(un_pote, amount, { from: mac }));
+
+    let ambroiseFinalBalance = await instance.getStudentBalance(ambroise);
+    let macFinalBalance = await instance.getStudentBalance(mac);
+
+    assert.isOk(macInitialBalance.gten(amount));
+    assert.isOk(ambroiseInitialBalance.eq(ambroiseFinalBalance));
+    assert.isOk(macInitialBalance.eq(macFinalBalance));
+  });
+
+  it("un eleve ne peut pas s'envoyer des cipa a lui-meme", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let amount = 1;
+
+    let macInitialBalance = await instance.getStudentBalance(mac);
+    await truffleAssert.reverts(instance.sendCipaStudentToStudent(mac, amount, { from: mac }));
+    let macFinalBalance = await instance.getStudentBalance(mac);
+
+    assert.isOk(macInitialBalance.gten(amount));
+    assert.isOk(macInitialBalance.eq(macFinalBalance));
   });
 
 });
