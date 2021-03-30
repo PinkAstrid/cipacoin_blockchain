@@ -21,6 +21,8 @@ contract CipaCoin {
 
     uint256 public cipaThreshold;
 
+    uint8 public maxSelfPaymentPercentage;
+
     mapping(address => Student) public students;
 
     Club[] public clubs;
@@ -28,6 +30,7 @@ contract CipaCoin {
     constructor() public {
         dumbledore = msg.sender;
         cipaThreshold = 20;
+        maxSelfPaymentPercentage = 20;
     }
 
     function getDumbledor() public view returns (address) {
@@ -78,6 +81,10 @@ contract CipaCoin {
         return cipaThreshold;
     }
 
+    function getMaxSelfPaymentPercentage() public view returns (uint8) {
+        return maxSelfPaymentPercentage;
+    }
+
     function setCipaThreshold(uint256 threshold) public {
         require(
             msg.sender == dumbledore,
@@ -85,6 +92,20 @@ contract CipaCoin {
         );
 
         cipaThreshold = threshold;
+    }
+
+    function setMaxSelfPaymentPercentage(uint8 percentage) public {
+        require(
+            msg.sender == dumbledore,
+            "Seule la direction des etudes peut modifier le seuil de validation"
+        );
+
+        require(
+            percentage <= 100,
+            "Le pourcentage doit etre inferieur ou egal a 100"
+        );
+
+        maxSelfPaymentPercentage = percentage;
     }
 
     function registerStudent(address student) public {
@@ -182,28 +203,25 @@ contract CipaCoin {
             "L'etudiant receveur a deja assez de CIPA."
         );
 
-        // pourcentage maximal autorise
-        uint256 max_percentage = 20;
-
         // le total des points que le president se serait verse si la transaction etait approuvee
-        uint256 total_amount =
+        uint256 totalAmount =
             clubs[clubInt].cipaSentToPresSinceNomination + amount;
 
         // le total est il conforme au maximal autorise
-        bool is_under_allowed_value =
-            (total_amount * 100) /
+        bool isUnderAllowedValue =
+            (totalAmount * 100) /
                 clubs[clubInt].totalCipaOwnedSinceNomination <=
-                max_percentage;
+                maxSelfPaymentPercentage;
 
         // permet au president de se verser un point meme s'il represente plus que le pourcentage autorise
         // utile si le club a peu de points a distribuer
-        bool is_poor =
+        bool isClubPoor =
             clubs[clubInt].cipaSentToPresSinceNomination == 0 && amount == 1;
 
         require(
             !(getClubPres(clubInt) == student) ||
-                is_under_allowed_value ||
-                is_poor,
+                isUnderAllowedValue ||
+                isClubPoor,
             "Le president ne peut se donner plus de 20% des CIPA recus depuis sa nomination."
         );
 

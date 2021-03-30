@@ -24,6 +24,12 @@ contract("El Cipatest", async accounts => {
     assert.isOk(balance.eqn(20));
   });
 
+  it("le pourcentage par défaut devrait etre 20", async () => {
+    let instance = await CipaCoin.deployed();
+    let balance = await instance.getMaxSelfPaymentPercentage.call();
+    assert.isOk(balance.eqn(20));
+  });
+
   // mac ajouté
   // ambroise ajouté
   it("on peut inscrire des etudiants", async () => {
