@@ -291,16 +291,17 @@ contract("El Cipatest", async accounts => {
   it("pas plus de 5 fois prez", async () => {
     let instance = await CipaCoin.deployed();
 
-    assert.isOk(await instance.getTimesPres(mac)==1);
+    assert.isOk(await instance.getTimesPres(mac) == 1);
     instance.createClub(mac, web3.utils.fromAscii("gouter"));
-    assert.isOk(await instance.getTimesPres(mac)==2);
+    assert.isOk(await instance.getTimesPres(mac) == 2);
     instance.createClub(mac, web3.utils.fromAscii("ptit dej"));
+    assert.isOk(await instance.getTimesPres(mac) == 3);
     instance.createClub(mac, web3.utils.fromAscii("dejeuner"));
+    assert.isOk(await instance.getTimesPres(mac) == 4);
     instance.createClub(mac, web3.utils.fromAscii("diner"));
-    assert.isOk(await instance.getTimesPres(mac)==5);
-    
+    assert.isOk(await instance.getTimesPres(mac) == 5);
+
     await truffleAssert.reverts(instance.createClub(mac, web3.utils.fromAscii("la faim")));
-    
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
     await truffleAssert.reverts(instance.nominatePres(mac, clubInt));
   });
