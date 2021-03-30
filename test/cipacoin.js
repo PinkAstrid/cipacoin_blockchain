@@ -288,4 +288,21 @@ contract("El Cipatest", async accounts => {
 
   });
 
+  it("pas plus de 5 fois prez", async () => {
+    let instance = await CipaCoin.deployed();
+
+    assert.isOk(await instance.getTimesPres(mac)==1);
+    instance.createClub(mac, web3.utils.fromAscii("gouter"));
+    assert.isOk(await instance.getTimesPres(mac)==2);
+    instance.createClub(mac, web3.utils.fromAscii("ptit dej"));
+    instance.createClub(mac, web3.utils.fromAscii("dejeuner"));
+    instance.createClub(mac, web3.utils.fromAscii("diner"));
+    assert.isOk(await instance.getTimesPres(mac)==5);
+    
+    await truffleAssert.reverts(instance.createClub(mac, web3.utils.fromAscii("la faim")));
+    
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
+    await truffleAssert.reverts(instance.nominatePres(mac, clubInt));
+  });
+
 });

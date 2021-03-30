@@ -98,7 +98,7 @@ contract CipaCoin {
             "La direction des etudes ne peut pas etre un etudiant"
         );
 
-        require(!studentExists(student), "L'student est deja inscrit");
+        require(!studentExists(student), "L'etudiant est deja inscrit");
 
         students[student] = Student({
             student: student,
@@ -256,9 +256,6 @@ contract CipaCoin {
     }
 
     function getTimesPres(address student) public view returns (uint){
-        require(student!=dumbledore,
-        "La direction des etudes ne peut pas etre president de club.");
-
         uint nbClub = 0;
 
         for (uint256 i = 0; i < clubs.length; i++) {
