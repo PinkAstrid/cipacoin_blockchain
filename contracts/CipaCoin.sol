@@ -182,14 +182,28 @@ contract CipaCoin {
             "L'etudiant receveur a deja assez de CIPA."
         );
 
+        // pourcentage maximal autorise
+        uint256 max_percentage = 20;
+
+        // le total des points que le president se serait verse si la transaction etait approuvee
+        uint256 total_amount =
+            clubs[clubInt].cipaSentToPresSinceNomination + amount;
+
+        // le total est il conforme au maximal autorise
+        bool is_under_allowed_value =
+            ((total_amount * 100) /
+                clubs[clubInt].totalCipaOwnedSinceNomination <=
+                max_percentage);
+
+        // permet au president de se verser un point meme s'il represente plus que le pourcentage autorise
+        // utile si le club a peu de points a distribuer
+        bool is_poor =
+            clubs[clubInt].cipaSentToPresSinceNomination == 0 && amount == 1;
+
         require(
             !(getClubPres(clubInt) == student) ||
-                (((clubs[clubInt].cipaSentToPresSinceNomination + amount) *
-                    100) /
-                    clubs[clubInt].totalCipaOwnedSinceNomination <
-                    20) ||
-                (clubs[clubInt].cipaSentToPresSinceNomination == 0 &&
-                    amount == 1),
+                is_under_allowed_value ||
+                is_poor,
             "Le president ne peut se donner plus de 20% des CIPA recus depuis sa nomination."
         );
 
