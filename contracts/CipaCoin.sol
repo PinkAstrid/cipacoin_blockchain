@@ -150,6 +150,7 @@ contract CipaCoin {
         require(clubExists(clubInt), "Le club n'est pas connu.");
 
         clubs[clubInt].cipaClubBalance += amount;
+        clubs[clubInt].totalCipaOwnedSinceNomination += amount;
     }
 
     function sendCipaClubToStudent(
