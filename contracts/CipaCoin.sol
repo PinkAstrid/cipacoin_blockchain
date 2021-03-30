@@ -6,6 +6,8 @@ contract CipaCoin {
         bytes32 name;
         address pres;
         uint256 cipaClubBalance;
+        uint256 totalCipaOwnedSinceNomination;
+        uint256 cipaSentToPresSinceNomination;
     }
 
     struct Eleve {
@@ -179,6 +181,17 @@ contract CipaCoin {
             "L'eleve receveur a deja assez de CIPA."
         );
 
+        require(
+            !(getClubPres(clubInt) == student) ||
+                (((clubs[clubInt].cipaSentToPresSinceNomination + amount) *
+                    100) /
+                    clubs[clubInt].totalCipaOwnedSinceNomination <
+                    20) ||
+                (clubs[clubInt].cipaSentToPresSinceNomination == 0 &&
+                    amount == 1),
+            "Le president ne peut se donner plus de 20% des CIPA recus depuis sa nomination."
+        );
+
         eleves[student].cipaStudentBalance += amount;
         clubs[clubInt].cipaClubBalance -= amount;
     }
@@ -207,7 +220,15 @@ contract CipaCoin {
 
         require(!alreadyExists, "Le club existe deja.");
 
-        clubs.push(Club({name: name, pres: president, cipaClubBalance: 0}));
+        clubs.push(
+            Club({
+                name: name,
+                pres: president,
+                cipaClubBalance: 0,
+                totalCipaOwnedSinceNomination: 0,
+                cipaSentToPresSinceNomination: 0
+            })
+        );
     }
 
     function validateCipa() public {
@@ -249,5 +270,7 @@ contract CipaCoin {
         );
 
         clubs[clubInt].pres = newPres;
+        clubs[clubInt].totalCipaOwnedSinceNomination = 0;
+        clubs[clubInt].cipaSentToPresSinceNomination = 0;
     }
 }
