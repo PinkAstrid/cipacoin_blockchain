@@ -17,7 +17,7 @@ contract CipaCoin {
         bool exists;
     }
 
-    address public dumbledor;
+    address public dumbledore;
 
     uint256 public cipaThreshold;
 
@@ -26,12 +26,12 @@ contract CipaCoin {
     Club[] public clubs;
 
     constructor() public {
-        dumbledor = msg.sender;
+        dumbledore = msg.sender;
         cipaThreshold = 20;
     }
 
-    function getDirectionDesEtudes() public view returns (address) {
-        return dumbledor;
+    function getDumbledor() public view returns (address) {
+        return dumbledore;
     }
 
     function studentExists(address student) public view returns (bool) {
@@ -80,7 +80,7 @@ contract CipaCoin {
 
     function setCipaThreshold(uint256 threshold) public {
         require(
-            msg.sender == dumbledor,
+            msg.sender == dumbledore,
             "Seule la direction des etudes peut modifier le seuil de validation"
         );
 
@@ -89,12 +89,12 @@ contract CipaCoin {
 
     function registerStudent(address student) public {
         require(
-            msg.sender == dumbledor,
+            msg.sender == dumbledore,
             "Seule la direction des etudes peut inscrire un etudiant"
         );
 
         require(
-            student != dumbledor,
+            student != dumbledore,
             "La direction des etudes ne peut pas etre un etudiant"
         );
 
@@ -140,15 +140,15 @@ contract CipaCoin {
         students[msg.sender].cipaStudentBalance -= amount;
     }
 
-    function sendCipaDirToClub(uint256 clubInt, uint256 amount) public {
+    function sendCipaAlbusToClub(uint256 clubInt, uint256 amount) public {
         require(amount > 0, "Le montant de la transaction est nul.");
         require(
-            msg.sender == dumbledor,
+            msg.sender == dumbledore,
             "Seule la direction des etudes peut creer des CIPA."
         );
 
         require(clubExists(clubInt), "Le club n'est pas connu.");
-        
+
         clubs[clubInt].totalCipaOwnedSinceNomination += amount;
         clubs[clubInt].cipaClubBalance += amount;
     }
@@ -199,12 +199,12 @@ contract CipaCoin {
 
     function createClub(address president, bytes32 name) public {
         require(
-            msg.sender == dumbledor,
+            msg.sender == dumbledore,
             "Seule la direction des etudes peut creer des clubs"
         );
 
         require(
-            president != dumbledor,
+            president != dumbledore,
             "La direction des etudes ne peut pas etre a la tete d'un club"
         );
 
@@ -252,9 +252,9 @@ contract CipaCoin {
         students[msg.sender].cipaStudentBalance = 0;
     }
 
-    function makePres(address newPres, uint256 clubInt) public {
+    function nominatePres(address newPres, uint256 clubInt) public {
         require(
-            msg.sender == dumbledor,
+            msg.sender == dumbledore,
             "Seule la direction des etudes peut nommer un president."
         );
 
