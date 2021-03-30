@@ -191,9 +191,9 @@ contract CipaCoin {
 
         // le total est il conforme au maximal autorise
         bool is_under_allowed_value =
-            ((total_amount * 100) /
+            (total_amount * 100) /
                 clubs[clubInt].totalCipaOwnedSinceNomination <=
-                max_percentage);
+                max_percentage;
 
         // permet au president de se verser un point meme s'il represente plus que le pourcentage autorise
         // utile si le club a peu de points a distribuer

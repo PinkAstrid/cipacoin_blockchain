@@ -282,9 +282,14 @@ contract("El Cipatest", async accounts => {
   it("mais il peut quand meme un peu taper dedans", async () => {
     let instance = await CipaCoin.deployed();
 
+    let amount = 3;
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
 
-    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 3, { from: ambroise }));
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
+    instance.sendCipaClubToStudent(clubInt, ambroise, amount, { from: ambroise });
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
+
+    assert.isOk(clubInitialBalance.subn(amount).eq(clubFinalBalance));
 
   });
 
