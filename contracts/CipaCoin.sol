@@ -221,6 +221,9 @@ contract CipaCoin {
 
         require(!alreadyExists, "Le club existe deja.");
 
+        require(getTimesPres(president)<5,
+                "L'etudiant est deja president de 5 clubs, il ne peut plus devenir president d'un nouveau club." );
+
         clubs.push(
             Club({
                 name: name,
@@ -252,6 +255,19 @@ contract CipaCoin {
         students[msg.sender].cipaStudentBalance = 0;
     }
 
+    function getTimesPres(address student) public view returns (uint){
+        require(student!=dumbledore,
+        "La direction des etudes ne peut pas etre president de club.");
+
+        uint nbClub = 0;
+
+        for (uint256 i = 0; i < clubs.length; i++) {
+            if(getClubPres(i)==student){nbClub++;}
+        }
+
+        return nbClub;
+    }
+
     function nominatePres(address newPres, uint256 clubInt) public {
         require(
             msg.sender == dumbledore,
@@ -269,6 +285,9 @@ contract CipaCoin {
             getClubPres(clubInt) != newPres,
             "L'etudiant est deja president de ce club."
         );
+
+        require(getTimesPres(newPres)<5,
+        "L'etudiant est deja president de 5 clubs, il ne peut plus devenir president d'un nouveau club.");
 
         clubs[clubInt].president = newPres;
         clubs[clubInt].totalCipaOwnedSinceNomination = 0;
