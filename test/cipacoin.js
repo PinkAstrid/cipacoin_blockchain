@@ -266,4 +266,26 @@ contract("El Cipatest", async accounts => {
     assert.isOk(macInitialBalance.eq(macFinalBalance), "le nombre de CIPA de l'etudiant a change alors que la transaction est censee echouer");
   });
 
+  it("un president ne peut pas voler la caisse", async () => {
+    let instance = await CipaCoin.deployed();
+
+    instance.createClub(ambroise, web3.utils.fromAscii("club mots au pif"));
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
+
+    instance.sendCipaAlbusToClub(clubInt, 15);
+
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 4, { from: ambroise }));
+
+  });
+
+  it("mais il peut quand meme un peu taper dedans", async () => {
+    let instance = await CipaCoin.deployed();
+
+    let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
+
+    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 3, { from: ambroise }));
+
+  });
+
 });
