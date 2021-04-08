@@ -23,6 +23,12 @@ contract("El Cipatest", async accounts => {
     assert.isOk(balance.eqn(20));
   });
 
+  it("le pourcentage par défaut devrait etre 20", async () => {
+    let instance = await CipaCoin.deployed();
+    let balance = await instance.getMaxSelfPaymentPercentage.call();
+    assert.isOk(balance.eqn(20));
+  });
+
   // mac ajouté
   // ambroise ajouté
   it("on peut inscrire des etudiants", async () => {
@@ -281,25 +287,31 @@ contract("El Cipatest", async accounts => {
   it("mais il peut quand meme un peu taper dedans", async () => {
     let instance = await CipaCoin.deployed();
 
+    let amount = 3;
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
 
-    await truffleAssert.reverts(instance.sendCipaClubToStudent(clubInt, ambroise, 3, { from: ambroise }));
+    let clubInitialBalance = await instance.getClubBalance(clubInt);
+    instance.sendCipaClubToStudent(clubInt, ambroise, amount, { from: ambroise });
+    let clubFinalBalance = await instance.getClubBalance(clubInt);
+
+    assert.isOk(clubInitialBalance.subn(amount).eq(clubFinalBalance));
 
   });
 
   it("pas plus de 5 fois prez", async () => {
     let instance = await CipaCoin.deployed();
 
-    assert.isOk(await instance.getTimesPres(mac)==1);
+    assert.isOk(await instance.getTimesPres(mac) == 1);
     instance.createClub(mac, web3.utils.fromAscii("gouter"));
-    assert.isOk(await instance.getTimesPres(mac)==2);
+    assert.isOk(await instance.getTimesPres(mac) == 2);
     instance.createClub(mac, web3.utils.fromAscii("ptit dej"));
+    assert.isOk(await instance.getTimesPres(mac) == 3);
     instance.createClub(mac, web3.utils.fromAscii("dejeuner"));
+    assert.isOk(await instance.getTimesPres(mac) == 4);
     instance.createClub(mac, web3.utils.fromAscii("diner"));
-    assert.isOk(await instance.getTimesPres(mac)==5);
-    
+    assert.isOk(await instance.getTimesPres(mac) == 5);
+
     await truffleAssert.reverts(instance.createClub(mac, web3.utils.fromAscii("la faim")));
-    
     let clubInt = await instance.getClubIntFromName.call(web3.utils.fromAscii("club mots au pif"));
     await truffleAssert.reverts(instance.nominatePres(mac, clubInt));
   });
