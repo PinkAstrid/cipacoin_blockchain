@@ -1,0 +1,10 @@
+{% extends "templates/generic_form.html" %}
+
+{% block headline %}
+    Création de club
+{% endblock %}
+
+{% block fields %}
+    {{ forms.select(form.president) }}
+    {{ forms.input(form.club_name) }}
+{% endblock %}

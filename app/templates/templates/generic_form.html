@@ -1,0 +1,21 @@
+{% extends "templates/base.html" %}
+
+{% import 'utils/forms.html' as forms %}
+
+{% block content %}
+    <h1 class="title">{% block headline %}{% endblock %}</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ forms.select(form.identify_as) }}
+        {% block fields %}{% endblock %}
+        <div class="field is-grouped">
+            <div class="control">
+                {{ form.submit(class_="button is-link") }}
+            </div>
+            <div class="control">
+                <a href="{{ url_for('index') }}" class="button is-link is-light">Retour</a>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

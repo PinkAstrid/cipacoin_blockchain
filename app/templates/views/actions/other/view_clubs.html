@@ -1,0 +1,28 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+    <h1 class="title">Clubs</h1>
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nom</th>
+            <th>Président</th>
+            <th>CIPA</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for club in clubs %}
+            <tr>
+                {% for field in club %}
+                    <td>{{ field }}</td>
+                {% endfor %}
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun club n'existe</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

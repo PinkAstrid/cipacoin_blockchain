@@ -1,0 +1,28 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+    <h1 class="title">Profils</h1>
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Address</th>
+            <th>CIPA</th>
+            <th>Certificat</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            <tr>
+                {% for field in student %}
+                    <td>{{ field }}</td>
+                {% endfor %}
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun étudiant n'est inscrit</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

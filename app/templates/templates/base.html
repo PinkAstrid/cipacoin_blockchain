@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    {% if title %}
+        <title>{{ title }} - CipaCoin</title>
+    {% else %}
+        <title>CipaCoinCoin</title>
+    {% endif %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+<body style="display: flex;min-height: 100vh;flex-direction: column;">
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="{{ url_for('index') }}">
+            <div class="title">
+                <span>Cipa</span>
+                <img src="/static/unicorn.png">
+                <span>Coin</span>
+            </div>
+        </a>
+    </div>
+</nav>
+<section class="section" style="flex: 1;">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</section>
+<footer class="footer" style="padding-bottom: 2rem !important;">
+    <div class="content has-text-centered">
+        Site réalisé par Marie-Astrid Chanteloup et Ambroise Sander. Icône par <a href="http://www.dariusdan.com"
+                                                                                  title="Darius Dan">Darius Dan</a> de
+        <a
+                href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+    </div>
+</footer>
+</body>
+</html>

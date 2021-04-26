@@ -1,0 +1,11 @@
+{% extends "templates/generic_form.html" %}
+
+{% block headline %}
+    Transfert administration vers club
+{% endblock %}
+
+{% block fields %}
+    {{ forms.select(form.club) }}
+    {{ forms.select(form.student) }}
+    {{ forms.input(form.amount) }}
+{% endblock %}

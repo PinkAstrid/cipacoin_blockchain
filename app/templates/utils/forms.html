@@ -1,0 +1,31 @@
+{% macro field(form_field, content) -%}
+    <div class="field">
+        <label class="label">
+            {{ form_field.label }}
+        </label>
+        <div class="control">
+            {{ content }}
+        </div>
+        {% for error in form_field.errors %}
+            <p class="help is-danger">[{{ error }}]</p>
+        {% endfor %}
+    </div>
+{%- endmacro %}
+
+{% macro _select(content, class) -%}
+    <div class="select">
+        {{ content(class_=class) }}
+    </div>
+{%- endmacro %}
+
+{% macro _input(content, class) -%}
+    {{ content(class_="input "+class) }}
+{%- endmacro %}
+
+{% macro select(content, class="") -%}
+    {{ field(content, _select(content, class)) }}
+{%- endmacro %}
+
+{% macro input(content, class="") -%}
+    {{ field(content, _input(content, class)) }}
+{%- endmacro %}

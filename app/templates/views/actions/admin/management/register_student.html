@@ -1,0 +1,9 @@
+{% extends "templates/generic_form.html" %}
+
+{% block headline %}
+    Inscription d'étudiant
+{% endblock %}
+
+{% block fields %}
+    {{ forms.select(form.student) }}
+{% endblock %}
