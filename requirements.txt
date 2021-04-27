@@ -15,7 +15,6 @@ eth-typing==2.2.2
 eth-utils==1.10.0
 Flask==1.1.2
 Flask-WTF==0.14.3
--e git+git@gitlab.telecomnancy.univ-lorraine.fr:Marie-Astrid.Chanteloup/blockchain_2a.git@6f44e9eb72e4719607a00a2d44e4c239d2637d91#egg=flaskapp
 hexbytes==0.2.1
 idna==2.10
 importlib-metadata==4.0.1
