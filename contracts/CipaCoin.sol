@@ -55,7 +55,7 @@ contract CipaCoin {
         return clubInt < clubs.length;
     }
 
-    function getClubCount() public view returns (uint256){
+    function getClubCount() public view returns (uint256) {
         return clubs.length;
     }
 
@@ -126,10 +126,10 @@ contract CipaCoin {
         require(!studentExists(student), "L'etudiant est deja inscrit");
 
         students[student] = Student({
-        student : student,
-        cipaStudentBalance : 0,
-        certificat : false,
-        exists : true
+            student: student,
+            cipaStudentBalance: 0,
+            certificat: false,
+            exists: true
         });
     }
 
@@ -209,28 +209,31 @@ contract CipaCoin {
 
         // le total des points que le president se serait verse si la transaction etait approuvee
         uint256 totalAmount =
-        clubs[clubInt].cipaSentToPresSinceNomination + amount;
+            clubs[clubInt].cipaSentToPresSinceNomination + amount;
 
         // le total est il conforme au maximal autorise
         bool isUnderAllowedValue =
-        (totalAmount * 100) /
-        clubs[clubInt].totalCipaOwnedSinceNomination <=
-        maxSelfPaymentPercentage;
+            (totalAmount * 100) /
+                clubs[clubInt].totalCipaOwnedSinceNomination <=
+                maxSelfPaymentPercentage;
 
         // permet au president de se verser un point meme s'il represente plus que le pourcentage autorise
         // utile si le club a peu de points a distribuer
         bool isClubPoor =
-        clubs[clubInt].cipaSentToPresSinceNomination == 0 && amount == 1;
+            clubs[clubInt].cipaSentToPresSinceNomination == 0 && amount == 1;
 
         require(
             !(getClubPres(clubInt) == student) ||
-        isUnderAllowedValue ||
-        isClubPoor,
+                isUnderAllowedValue ||
+                isClubPoor,
             "Le president ne peut se donner plus de 20% des CIPA recus depuis sa nomination."
         );
 
         students[student].cipaStudentBalance += amount;
         clubs[clubInt].cipaClubBalance -= amount;
+
+        if (getClubPres(clubInt) == student)
+            clubs[clubInt].cipaSentToPresSinceNomination += amount;
     }
 
     function createClub(address president, bytes32 name) public {
@@ -264,12 +267,12 @@ contract CipaCoin {
 
         clubs.push(
             Club({
-        name : name,
-        president : president,
-        cipaClubBalance : 0,
-        totalCipaOwnedSinceNomination : 0,
-        cipaSentToPresSinceNomination : 0
-        })
+                name: name,
+                president: president,
+                cipaClubBalance: 0,
+                totalCipaOwnedSinceNomination: 0,
+                cipaSentToPresSinceNomination: 0
+            })
         );
     }
 
