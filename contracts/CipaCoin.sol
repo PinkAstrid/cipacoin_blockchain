@@ -158,7 +158,7 @@ contract CipaCoin {
 
         require(
             !studentHasCert(student),
-            "L'etudiant receveur a deja assez de CIPA."
+            "L'etudiant receveur a deja son certificat."
         );
 
         students[student].cipaStudentBalance += amount;
@@ -204,7 +204,7 @@ contract CipaCoin {
 
         require(
             !studentHasCert(student),
-            "L'etudiant receveur a deja assez de CIPA."
+            "L'etudiant receveur a deja son certificat."
         );
 
         // le total des points que le president se serait verse si la transaction etait approuvee
@@ -327,7 +327,7 @@ contract CipaCoin {
         );
 
         clubs[clubInt].president = newPres;
-        clubs[clubInt].totalCipaOwnedSinceNomination = 0;
+        clubs[clubInt].totalCipaOwnedSinceNomination = clubs[clubInt].cipaClubBalance;
         clubs[clubInt].cipaSentToPresSinceNomination = 0;
     }
 }
