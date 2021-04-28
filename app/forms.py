@@ -78,5 +78,9 @@ class SelfPaymentThresholdForm(GenericForm):
     amount = IntegerField("Pourcentage", validators=[InputRequired(), NumberRange(min=0, max=100)])
 
 
+class MaxClubsThresholdForm(GenericForm):
+    amount = IntegerField("Valeur", validators=[InputRequired(), NumberRange(min=0)])
+
+
 class CertificateValidationForm(GenericForm):
     pass

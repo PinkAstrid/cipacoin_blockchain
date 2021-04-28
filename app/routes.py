@@ -4,7 +4,7 @@ from web3.exceptions import ContractLogicError
 from app import app, contract, accounts, w3
 from app.forms import AdminToClubTransferForm, StudentRegistrationForm, ClubCreationForm, \
     ClubToStudentTransferForm, StudentToStudentTransferForm, ValidationThresholdForm, SelfPaymentThresholdForm, \
-    CertificateValidationForm, PresidentChangeForm
+    CertificateValidationForm, PresidentChangeForm, MaxClubsThresholdForm
 from app.utils import string_to_bytes32, generate_club_line
 
 
@@ -142,6 +142,21 @@ def validation_threshold():
             flash(str(e).split("revert")[-1], "revert")
         return redirect(url_for("index"))
     return render_template("views/actions/admin/thresholds/validation_threshold.html", form=form)
+
+
+@app.route('/admin/threshold/clubs', methods=['GET', 'POST'])
+def max_clubs_threshold():
+    form = MaxClubsThresholdForm()
+    if form.validate_on_submit():
+        try:
+            h = contract.functions.setMaxOwnedClubs(form.amount.data).transact(
+                {'from': accounts[int(form.identify_as.data)]})
+            w3.eth.waitForTransactionReceipt(h)
+            flash(f"Nombre maximal de clubs présidés par un même étudiant fixé à {form.amount.data}", "success")
+        except ContractLogicError as e:
+            flash(str(e).split("revert")[-1], "revert")
+        return redirect(url_for("index"))
+    return render_template("views/actions/admin/thresholds/max_clubs_threshold.html", form=form)
 
 
 @app.route('/admin/threshold/selfpay', methods=['GET', 'POST'])

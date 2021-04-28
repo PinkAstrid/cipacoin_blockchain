@@ -231,8 +231,8 @@ contract CipaCoin {
         require(!alreadyExists, "Le club existe deja");
 
         require(
-            getTimesPres(president) < 5,
-            "L'etudiant est deja president de 5 clubs, il ne peut plus devenir president d'un nouveau club"
+            getTimesPres(president) < maxOwnedClubs,
+            "L'etudiant est deja president de trop de clubs, il ne peut plus devenir president d'un nouveau club"
         );
 
         clubs.push(
