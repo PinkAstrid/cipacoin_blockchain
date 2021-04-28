@@ -8,7 +8,7 @@ from app import accounts, contract
 accounts_choices = [(i, f"Compte {i}") for i in range(len(accounts))]
 
 
-def EthAddr(form, field):
+def eth_addr(form, field):
     if not app.w3.isAddress(field.data):
         raise ValidationError('Field must be a valid eth address')
 
