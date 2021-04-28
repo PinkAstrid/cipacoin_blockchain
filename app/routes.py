@@ -3,7 +3,8 @@ from web3.exceptions import ContractLogicError
 
 from app import app, contract, accounts, w3
 from app.forms import AdminToClubTransferForm, StudentRegistrationForm, ClubCreationForm, \
-    ClubToStudentTransferForm, StudentToStudentTransferForm
+    ClubToStudentTransferForm, StudentToStudentTransferForm, ValidationThresholdForm, SelfPaymentThresholdForm, \
+    CertificateValidationForm, PresidentChangeForm
 from app.utils import string_to_bytes32
 
 
@@ -59,6 +60,7 @@ def club_to_student():
                 form.amount.data, form.club.data, form.student.data))
         except ContractLogicError as e:
             flash(str(e).split("revert")[-1])
+            print(e)
         return redirect(url_for("index"))
     return render_template("views/actions/transfer/club_to_student.html", form=form)
 
@@ -109,3 +111,66 @@ def create_club():
             flash(str(e).split("revert")[-1])
         return redirect(url_for("index"))
     return render_template("views/actions/admin/management/create_club.html", form=form)
+
+
+@app.route('/admin/management/change', methods=['GET', 'POST'])
+def change_president():
+    form = PresidentChangeForm.new()
+    if form.validate_on_submit():
+        try:
+            h = contract.functions.nominatePres(
+                accounts[int(form.president.data)],
+                contract.caller().getClubIntFromName(string_to_bytes32(form.club.data))
+            ).transact(
+                {'from': accounts[int(form.identify_as.data)]})
+            w3.eth.waitForTransactionReceipt(h)
+            flash(f"Le président du club {form.club.data} est désormais le Compte {form.president.data}")
+        except ContractLogicError as e:
+            flash(str(e).split("revert")[-1])
+        return redirect(url_for("index"))
+    return render_template("views/actions/admin/management/change_president.html", form=form)
+
+
+@app.route('/admin/threshold/validation', methods=['GET', 'POST'])
+def validation_threshold():
+    form = ValidationThresholdForm()
+    if form.validate_on_submit():
+        try:
+            h = contract.functions.setCipaThreshold(form.amount.data).transact(
+                {'from': accounts[int(form.identify_as.data)]})
+            w3.eth.waitForTransactionReceipt(h)
+            flash('Seuil de validation fixé à {} avec succès'.format(form.amount.data))
+        except ContractLogicError as e:
+            flash(str(e).split("revert")[-1])
+        return redirect(url_for("index"))
+    return render_template("views/actions/admin/thresholds/validation_threshold.html", form=form)
+
+
+@app.route('/admin/threshold/selfpay', methods=['GET', 'POST'])
+def self_payment_threshold():
+    form = SelfPaymentThresholdForm()
+    if form.validate_on_submit():
+        try:
+            h = contract.functions.setMaxSelfPaymentPercentage(form.amount.data).transact(
+                {'from': accounts[int(form.identify_as.data)]})
+            w3.eth.waitForTransactionReceipt(h)
+            flash('Pourcentage maximum fixé à {}% avec succès'.format(form.amount.data))
+        except ContractLogicError as e:
+            flash(str(e).split("revert")[-1])
+        return redirect(url_for("index"))
+    return render_template("views/actions/admin/thresholds/self_payment_threshold.html", form=form)
+
+
+@app.route('/admin/validate', methods=['GET', 'POST'])
+def validate_certificate():
+    form = CertificateValidationForm()
+    if form.validate_on_submit():
+        try:
+            h = contract.functions.validateCipa().transact(
+                {'from': accounts[int(form.identify_as.data)]})
+            w3.eth.waitForTransactionReceipt(h)
+            flash(f"L'étudiant possédant le compte {form.identify_as.data} a validé son certificat")
+        except ContractLogicError as e:
+            flash(str(e).split("revert")[-1])
+        return redirect(url_for("index"))
+    return render_template("views/actions/validate_certificate.html", form=form)

@@ -2,13 +2,12 @@
 
 {% block content %}
     <div class="tile is-ancestor is-vertical">
-
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="tile  is-parent">
                     <div class="tile  is-parent">
                         <div class="tile is-child box has-background-danger">
-                            <p class="title">Messages</p>
+                            <p class="title">{% if messages|length == 1 %}Message{% else %}Messages{% endif %}</p>
                             {% for message in messages %}
                                 <p class="subtitle has-text-light">{{ message }}</p>
                             {% endfor %}
@@ -32,6 +31,13 @@
                             Étudiant</a>
                     </div>
                 </div>
+                <div class="tile is-child box has-background-success">
+                    <div class="buttons is-centered">
+                        <a href="{{ url_for('validate_certificate') }}"
+                           class="button has-background-success-dark is-success is-fullwidth">Valider ses
+                            CIPA</a>
+                    </div>
+                </div>
                 <div class="tile is-child box has-background-warning">
                     <p class="title">Autres</p>
                     <div class="buttons is-centered">
@@ -41,8 +47,6 @@
                         <a href="{{ url_for('view_clubs') }}"
                            class="button has-background-warning-light is-warning is-fullwidth">Consulter les
                             clubs</a>
-                        <a href="" class="button has-background-warning-light is-warning is-fullwidth">Valider ses
-                            CIPA</a>
                     </div>
                 </div>
             </div>
@@ -52,8 +56,10 @@
                     <div class="tile is-child box has-background-info-dark">
                         <p class="subtitle has-text-light">Seuils</p>
                         <div class="buttons is-centered">
-                            <a href="" class="button is-info is-fullwidth">Seuil de validation</a>
-                            <a href="" class="button is-info is-fullwidth">Ratio d'autoversement</a>
+                            <a href="{{ url_for('validation_threshold') }}" class="button is-info is-fullwidth">Seuil de
+                                validation</a>
+                            <a href="{{ url_for('self_payment_threshold') }}" class="button is-info is-fullwidth">Ratio
+                                d'autoversement</a>
                         </div>
                     </div>
                     <div class="tile is-child box has-background-info-dark">
@@ -62,60 +68,11 @@
                             <a href="{{ url_for('register_student') }}" class="button is-info is-fullwidth">Inscrire un
                                 étudiant</a>
                             <a href="{{ url_for('create_club') }}" class="button is-info is-fullwidth">Créer un club</a>
-                            <a href="" class="button is-info is-fullwidth">Nommer un président de club</a>
+                            <a href="{{ url_for('change_president') }}" class="button is-info is-fullwidth">Nommer un président de club</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--
-        <div class="tile is-vertical is-parent">
-            <div class="tile is-child box has-background-primary">
-                <p class="title">Transferts</p>
-                <div class="buttons is-centered">
-                    <a href="{{ url_for('admin_to_club') }}"
-                       class="button has-background-primary-dark is-primary is-fullwidth">Administration
-                        vers Club</a>
-                    <a href="{{ url_for('club_to_student') }}"
-                       class="button has-background-primary-dark is-primary is-fullwidth">Club vers Étudiant</a>
-                    <a href="{{ url_for('student_to_student') }}"
-                       class="button has-background-primary-dark is-primary is-fullwidth">Étudiant vers
-                        Étudiant</a>
-                </div>
-            </div>
-            <div class="tile is-child box has-background-warning">
-                <p class="title">Autres</p>
-                <div class="buttons is-centered">
-                    <a href="{{ url_for('view_profiles') }}"
-                       class="button has-background-warning-light is-warning is-fullwidth">Consulter les
-                        profils</a>
-                    <a href="{{ url_for('view_clubs') }}"
-                       class="button has-background-warning-light is-warning is-fullwidth">Consulter les
-                        clubs</a>
-                    <a href="" class="button has-background-warning-light is-warning is-fullwidth">Valider ses CIPA</a>
-                </div>
-            </div>
-        </div>
-        <div class="tile is-parent">
-            <div class="tile is-parent box has-background-info is-vertical">
-                <p class="title">Administration</p>
-                <div class="tile is-child box has-background-info-dark">
-                    <p class="subtitle has-text-light">Seuils</p>
-                    <div class="buttons is-centered">
-                        <a href="" class="button is-info is-fullwidth">Seuil de validation</a>
-                        <a href="" class="button is-info is-fullwidth">Ratio d'autoversement</a>
-                    </div>
-                </div>
-                <div class="tile is-child box has-background-info-dark">
-                    <p class="subtitle has-text-light">Gestion des étudiants</p>
-                    <div class="buttons is-centered">
-                        <a href="{{ url_for('register_student') }}" class="button is-info is-fullwidth">Inscrire un
-                            étudiant</a>
-                        <a href="{{ url_for('create_club') }}" class="button is-info is-fullwidth">Créer un club</a>
-                        <a href="" class="button is-info is-fullwidth">Nommer un président de club</a>
-                    </div>
-                </div>
-            </div>
-        </div>-->
     </div>
 {% endblock %}

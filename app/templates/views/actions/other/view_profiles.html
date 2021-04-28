@@ -1,26 +1,29 @@
 {% extends "templates/base.html" %}
 
+{% set headings = ["Id", "Address", "CIPA", "Certificat"] %}
+
 {% block content %}
     <h1 class="title">Profils</h1>
     <table class="table is-fullwidth">
         <thead>
         <tr>
-            <th>Id</th>
-            <th>Address</th>
-            <th>CIPA</th>
-            <th>Certificat</th>
+            {% for heading in headings %}
+                <th>{{ heading }}</th>
+            {% endfor %}
         </tr>
         </thead>
         <tbody>
         {% for student in students %}
             <tr>
                 {% for field in student %}
-                    <td>{{ field }}</td>
+                    {% if loop.index0 < headings|length %}
+                        <td>{{ field }}</td>
+                    {% endif %}
                 {% endfor %}
             </tr>
         {% else %}
             <tr>
-                <td colspan="4">Aucun étudiant n'est inscrit</td>
+                <td class="has-text-centered" colspan="{{ headings|length }}">Aucun étudiant n'est inscrit</td>
             </tr>
         {% endfor %}
         </tbody>

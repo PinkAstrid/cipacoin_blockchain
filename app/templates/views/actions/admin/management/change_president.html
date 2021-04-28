@@ -1,0 +1,10 @@
+{% extends "templates/generic_form.html" %}
+
+{% block headline %}
+    Changement de président de club
+{% endblock %}
+
+{% block fields %}
+    {{ forms.select(form.club) }}
+    {{ forms.select(form.president) }}
+{% endblock %}
