@@ -1,0 +1,6 @@
+[chaine]
+url = http://127.0.0.1
+port = 7545
+[contrat]
+chemin_abi = build/contracts/CipaCoin.json
+adresse = 0xDAFB661ed5344d7C173651457610633B35Cdb272
