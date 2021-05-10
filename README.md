@@ -12,7 +12,7 @@ cette partie a été réalisée à l'aide de flask et non de drizzle.
 
 ### installation
 
-(instructions données pour ubuntu, devrai fonctionner sur tout linux basé sur debian, nécessite quelques ajustements pour d'éventuelles autres plateformes).
+(instructions données pour ubuntu, devrait fonctionner sur tout linux basé sur debian, nécessite quelques ajustements pour d'éventuelles autres plateformes).
 
 ```bash
 sudo apt install -y git python3-venv python3-dev python3-wheel npm
