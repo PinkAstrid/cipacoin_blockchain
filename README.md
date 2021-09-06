@@ -1,18 +1,18 @@
-# projet blockchain
+# CipaCoin - Projet Blockchain
 
 Par Marie-Astrid Chanteloup et Ambroise Sander
 
-## tests
+## Tests
 
-exécuter la commande `truffle test` (ou `npx truffle test` si truffle est installé localement)
+Exécuter la commande `truffle test` (ou `npx truffle test` si truffle est installé localement)
 
-## partie web
+## Partie web
 
-cette partie a été réalisée à l'aide de flask et non de drizzle.
+Cette partie a été réalisée à l'aide de Flask.
 
-### installation
+### Installation
 
-(instructions données pour ubuntu, devrait fonctionner sur tout linux basé sur debian, nécessite quelques ajustements pour d'éventuelles autres plateformes).
+Instructions données pour Ubuntu, devrait fonctionner sur tout Linux basé sur Debian, nécessite quelques ajustements pour d'éventuelles autres plateformes.
 
 ```bash
 sudo apt install -y git python3-venv python3-dev python3-wheel npm
@@ -24,15 +24,15 @@ source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-### exécution
+### Exécution
 
-(depuis la racine du repo)
+Depuis la racine du repository :
 
 ```bash
 npx ganache-cli -p 7545 --networkId 5777
 ```
 
-laisser ce terminal ouvert et en ouvrir un autre (ou utiliser un outil tel que `screen`), puis exécuter les commandes suivantes dans le second terminal :
+Laisser ce terminal ouvert et en ouvrir un autre (ou utiliser un outil tel que `screen`), puis exécuter les commandes suivantes dans le second terminal :
 
 ```bash
 npx truffle migrate
